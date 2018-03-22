@@ -2,11 +2,16 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-#include <fstream> 
+#include <fstream>
 #include <windows.h>
 
 using namespace std;
 
+const string hcn = "ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿\n³                 ³\n³                 ³\n³                 ³\nÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ";
+
+void clrscr();
+void gotoXY (int column, int line);
+void TextColor (int color);
 void createWordList(vector <string> &wordList, const string fileWord);
 int chooseIntexValid(bool *wordsUsed, const int &nWords);
 void createTheAnswer(int *theAnswer, int &correctAnswer, const int &randomIntex, const int &nWords, const int &nAnswers);
@@ -28,12 +33,13 @@ int main()
 		int wordsCanGuessed = nWords, yourPoint = 0;
     	for(; ;)
 		{
+		    clrscr();
 		    int randomIntex = chooseIntexValid(wordsUsed, nWords);
 			int correctAnswer, theAnswer[nAnswers];
             createTheAnswer(theAnswer, correctAnswer, randomIntex, nWords, nAnswers);
             printfQuestion(englishWordList, vietnameseWordList, randomIntex, theAnswer, nAnswers);
             char reply;
-            readReply(reply); 
+            readReply(reply);
 			handl(reply, correctAnswer, yourPoint,wordsCanGuessed, nAnswers);
 			if(wordsCanGuessed == 0)
 			break;
@@ -62,6 +68,7 @@ void createWordList(vector <string> &wordList, const string fileWord)
 	file.close();
 	return;
 }
+
 int chooseIntexValid(bool *wordsUsed, const int &nWords)
 {
     srand(time(NULL));
@@ -71,6 +78,7 @@ int chooseIntexValid(bool *wordsUsed, const int &nWords)
     wordsUsed[randomIntex] = true;
     return randomIntex;
 }
+
 void createTheAnswer(int *theAnswer, int &correctAnswer, const int &randomIntex, const int &nWords, const int &nAnswers)
 {
     srand(time(NULL));
@@ -113,7 +121,9 @@ void printfQuestion(const vector <string> &englishWordList, const vector <string
 {
     cout << englishWordList.at(randomIntex) << endl;
     for(int i = 0;i < nAnswers;i ++)
-    cout << (char) (i + 'A') << ". " << vietnameseWordList.at(theAnswer[i]) << endl;
+    {
+        cout << hcn << (char) (i + 'A') << ". " << vietnameseWordList.at(theAnswer[i]) << endl;
+    }
     return;
 }
 void readReply(char &reply)
@@ -121,6 +131,7 @@ void readReply(char &reply)
     cin >> reply;
     return;
 }
+
 void handl(const char &reply, const int &correctAnswer, int &yourPoint, int &wordsCanGuessed,int &nAnswers)
 {
 	if(reply - 'A' == correctAnswer
@@ -138,4 +149,30 @@ void handl(const char &reply, const int &correctAnswer, int &yourPoint, int &wor
     }
     cout << endl;
     return;
+}
+void clrscr()
+{
+	CONSOLE_SCREEN_BUFFER_INFO	csbiInfo;
+	HANDLE	hConsoleOut;
+	COORD	Home = {0,0};
+	DWORD	dummy;
+
+	hConsoleOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	GetConsoleScreenBufferInfo(hConsoleOut,&csbiInfo);
+
+	FillConsoleOutputCharacter(hConsoleOut,' ',csbiInfo.dwSize.X * csbiInfo.dwSize.Y,Home,&dummy);
+	csbiInfo.dwCursorPosition.X = 0;
+	csbiInfo.dwCursorPosition.Y = 0;
+	SetConsoleCursorPosition(hConsoleOut,csbiInfo.dwCursorPosition);
+}
+void gotoXY (int column, int line)
+{
+	COORD coord;
+	coord.X = column;
+	coord.Y = line;
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),coord);
+}
+void TextColor (int color)
+{
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE) , color);
 }
