@@ -4,20 +4,24 @@
 #include <ctime>
 #include <fstream>
 #include <windows.h>
+#include <conio.h>
 
 using namespace std;
 
-const string hcn = "ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿\n³                 ³\n³                 ³\n³                 ³\nÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ";
+const int nAnswers = 4;
 
 void clrscr();
 void gotoXY (int column, int line);
 void TextColor (int color);
 void createWordList(vector <string> &wordList, const string fileWord);
 int chooseIntexValid(bool *wordsUsed, const int &nWords);
-void createTheAnswer(int *theAnswer, int &correctAnswer, const int &randomIntex, const int &nWords, const int &nAnswers);
-void printfQuestion(const vector <string> &englishWordList, const vector <string> &vietnameseWordList, const int &randomIntex, const int *theAnswer, const int &nAnswers);
-void readReply(char &reply);
-void handl(const char &reply, const int &correctAnswer, int &yourPoint, int &wordsCanGuessed,int &nAnswers);
+void createTheAnswer(int *theAnswer, int &correctAnswer, const int &randomIntex, const int &nWords);
+char printfQuestion(const vector <string> &englishWordList, const vector <string> &vietnameseWordList, const int &randomIntex, const int *theAnswer);
+void handl(const char &reply, const int &correctAnswer, int &yourPoint, int &wordsCanGuessed);
+void handlWord(string &word);
+void chen(string word, int dcs, int ccs, string out[]);
+void xoanguoi(int i, int j, string out[]);
+void chennguoi(int i, int j, string out[]);
 
 int main()
 {
@@ -27,20 +31,18 @@ int main()
 	int nWords = vietnameseWordList.size();
     if(nWords != 0)
     {
-		int nAnswers = 4;
 		bool *wordsUsed;
 		wordsUsed = new bool[nWords];
 		int wordsCanGuessed = nWords, yourPoint = 0;
     	for(; ;)
 		{
 		    clrscr();
+		    int roi = 0;
 		    int randomIntex = chooseIntexValid(wordsUsed, nWords);
 			int correctAnswer, theAnswer[nAnswers];
-            createTheAnswer(theAnswer, correctAnswer, randomIntex, nWords, nAnswers);
-            printfQuestion(englishWordList, vietnameseWordList, randomIntex, theAnswer, nAnswers);
-            char reply;
-            readReply(reply);
-			handl(reply, correctAnswer, yourPoint,wordsCanGuessed, nAnswers);
+            createTheAnswer(theAnswer, correctAnswer, randomIntex, nWords);
+            char reply = printfQuestion(englishWordList, vietnameseWordList, randomIntex, theAnswer);
+			handl(reply, correctAnswer, yourPoint,wordsCanGuessed);
 			if(wordsCanGuessed == 0)
 			break;
 		}
@@ -53,6 +55,20 @@ int main()
 	return 0;
 }
 
+void handlWord(string &word)
+{
+    int space = 0;
+    for(int i = 0;i < word.length();i ++)
+    {
+        if(word[i] == ' ')
+        {
+            space ++;
+            if(space % 3 == 0)
+                word[i] = '\n';
+        }
+    }
+}
+
 void createWordList(vector <string> &wordList, const string fileWord)
 {
 	ifstream file (fileWord.c_str());
@@ -62,6 +78,7 @@ void createWordList(vector <string> &wordList, const string fileWord)
 		while(!file.eof())
 		{
 			getline(file, word);
+			handlWord(word);
 			wordList.push_back(word);
 		}
 	}
@@ -79,7 +96,7 @@ int chooseIntexValid(bool *wordsUsed, const int &nWords)
     return randomIntex;
 }
 
-void createTheAnswer(int *theAnswer, int &correctAnswer, const int &randomIntex, const int &nWords, const int &nAnswers)
+void createTheAnswer(int *theAnswer, int &correctAnswer, const int &randomIntex, const int &nWords)
 {
     srand(time(NULL));
     correctAnswer = rand() % nAnswers;
@@ -117,30 +134,57 @@ void createTheAnswer(int *theAnswer, int &correctAnswer, const int &randomIntex,
     return;
 }
 
-void printfQuestion(const vector <string> &englishWordList, const vector <string> &vietnameseWordList, const int &randomIntex, const int *theAnswer, const int &nAnswers)
+char printfQuestion(const vector <string> &englishWordList, const vector <string> &vietnameseWordList, const int &randomIntex, const int *theAnswer)
 {
-    cout << englishWordList.at(randomIntex) << endl;
-    for(int i = 0;i < nAnswers;i ++)
+    int line = 0;
+    string out[25];
+    for(int i = 0;i < 20;i ++)
+        out[line] += " ";
+    out[line ++] += englishWordList.at(randomIntex);
+    line ++;
+    ifstream file("hinh.txt");
+    if(file.is_open())
     {
-        cout << hcn << (char) (i + 'A') << ". " << vietnameseWordList.at(theAnswer[i]) << endl;
+        string hinh;
+        while(!file.eof())
+        {
+            getline(file, hinh);
+            out[line ++] = hinh;
+        }
     }
-    return;
-}
-void readReply(char &reply)
-{
-    cin >> reply;
-    return;
+    out[line ++] = "____________________________________________________________";
+    line ++;
+    out [line ++] = "Nhap dap an cua ban: ";
+    chen(vietnameseWordList.at(theAnswer[0]), 4, 1, out);
+    chen(vietnameseWordList.at(theAnswer[1]), 4, 34, out);
+    chen(vietnameseWordList.at(theAnswer[2]), 12, 1, out);
+    chen(vietnameseWordList.at(theAnswer[3]), 12, 34, out);
+    int roi = 0;
+    while(roi != 12)
+    {
+        clrscr();
+        xoanguoi(2 + roi, 24, out);
+        chennguoi(3 + roi, 24, out);
+        string manhinh;
+        for(int i = 0;i < line;i ++)
+            manhinh += out[i] + "\n";
+            cout << manhinh;
+            roi ++;
+            if(kbhit())
+                return getch();
+            Sleep(1000);
+    }
+    if(roi == 12)
+        return '\n';
 }
 
-void handl(const char &reply, const int &correctAnswer, int &yourPoint, int &wordsCanGuessed,int &nAnswers)
+void handl(const char &reply, const int &correctAnswer, int &yourPoint, int &wordsCanGuessed)
 {
 	if(reply - 'A' == correctAnswer
 	|| reply - 'a' == correctAnswer)
     {
     	yourPoint ++;
     	wordsCanGuessed --;
-	    if(yourPoint % 10 == 0)
-        nAnswers ++;
     }
     else
     {
@@ -175,4 +219,39 @@ void gotoXY (int column, int line)
 void TextColor (int color)
 {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE) , color);
+}
+
+void chen(string word, int dcs, int ccs, string out[])
+{
+    int i = dcs, j = ccs;
+    for(int k = 0;k < word.length();k ++)
+    {
+        if(word[k] == '\n')
+        {
+            i ++;
+            j = ccs;
+        }
+        else
+            out[i][j ++] = word[k];
+    }
+}
+void chennguoi(int i, int j, string out[])
+{
+    out[i][j] = 2;
+    out[i + 1][j] = '|';
+    out[i + 2][j - 1] = '/';
+    out[i + 2][j + 1] = '\\';
+    out[i + 2][j] = '|';
+    out[i + 3][j - 1] = '/';
+    out[i + 3][j + 1] = '\\';
+}
+void xoanguoi(int i, int j, string out[])
+{
+    out[i][j] = ' ';
+    out[i + 1][j] = ' ';
+    out[i + 2][j - 1] = ' ';
+    out[i + 2][j + 1] = ' ';
+    out[i + 2][j] = ' ';
+    out[i + 3][j - 1] = ' ';
+    out[i + 3][j + 1] = ' ';
 }
