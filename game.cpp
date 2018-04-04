@@ -31,13 +31,12 @@ int main()
 	int nWords = vietnameseWordList.size();
     if(nWords != 0)
     {
-		bool *wordsUsed;
-		wordsUsed = new bool[nWords];
+        srand(time(NULL));
+		bool wordsUsed[nWords] = {false};
 		int wordsCanGuessed = nWords, yourPoint = 0;
     	for(; ;)
 		{
 		    clrscr();
-		    int roi = 0;
 		    int randomIntex = chooseIntexValid(wordsUsed, nWords);
 			int correctAnswer, theAnswer[nAnswers];
             createTheAnswer(theAnswer, correctAnswer, randomIntex, nWords);
@@ -88,7 +87,6 @@ void createWordList(vector <string> &wordList, const string fileWord)
 
 int chooseIntexValid(bool *wordsUsed, const int &nWords)
 {
-    srand(time(NULL));
     int randomIntex = rand() % nWords;
     while(wordsUsed[randomIntex] == true)
     randomIntex = rand() % nWords;
@@ -98,36 +96,35 @@ int chooseIntexValid(bool *wordsUsed, const int &nWords)
 
 void createTheAnswer(int *theAnswer, int &correctAnswer, const int &randomIntex, const int &nWords)
 {
-    srand(time(NULL));
     correctAnswer = rand() % nAnswers;
     theAnswer[correctAnswer] = randomIntex;
     for(int i = correctAnswer - 1;i >= 0;i --)
     {
         bool valueValid = true;
-        int randomIntex = rand() % nWords;
+        int random = rand() % nWords;
         for(int j = correctAnswer;j > i;j --)
-        if(randomIntex == theAnswer[j])
+        if(random == theAnswer[j])
         {
             valueValid = false;
             break;
         }
         if(valueValid == true)
-        theAnswer[i] = randomIntex;
+        theAnswer[i] = random;
         else
         i ++;
     }
     for(int i = correctAnswer + 1;i < nAnswers;i ++)
     {
         bool valueValid = true;
-        int randomIntex = rand() % nWords;
+        int random = rand() % nWords;
         for(int j = 0;j < i;j ++)
-        if(randomIntex == theAnswer[j])
+        if(random == theAnswer[j])
         {
             valueValid = false;
             break;
         }
         if(valueValid == true)
-        theAnswer[i] = randomIntex;
+        theAnswer[i] = random;
         else
         i --;
     }
@@ -237,7 +234,7 @@ void chen(string word, int dcs, int ccs, string out[])
 }
 void chennguoi(int i, int j, string out[])
 {
-    out[i][j] = 2;
+    out[i][j] = 'o';
     out[i + 1][j] = '|';
     out[i + 2][j - 1] = '/';
     out[i + 2][j + 1] = '\\';
