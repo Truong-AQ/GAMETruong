@@ -5,7 +5,7 @@ Tên game : Trắc nghiệm Tiếng Anh
 
 Tên tác giả : Nguyễn Văn Trường
 
-Thời gian hoàn thành : 2 tuần
+Thời gian hoàn thành : 7 tuần
 
 Luật chơi :
 Trò chơi có 100 câu hỏi, mỗi câu hỏi có 4 phương án trả lời là A, B, C, D để người chơi lựa chọn, với mỗi câu hỏi có thời gian xác định để chơi, câu hỏi là một từ tiếng Anh, đáp án là nghĩa của từ Tiếng Anh đó sang Tiếng Việt
